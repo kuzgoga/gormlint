@@ -1,4 +1,4 @@
-package analyzers
+package nullSafetyCheck
 
 import (
 	"go/ast"
@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// NullSafetyAnalyzer todo: add URL for null safety analyzer rules
 var NullSafetyAnalyzer = &analysis.Analyzer{
 	Name: "gormNullSafety",
 	Doc:  "reports problems with nullable fields with unsatisfied tag",
@@ -24,7 +25,6 @@ func run(pass *analysis.Pass) (any, error) {
 			if !ok {
 				return true
 			}
-			pass.Fset.Position(structure.Pos())
 
 			if err := common.CheckUnnamedModel(*typeSpec); err != nil {
 				pass.Reportf(structure.Pos(), err.Error())

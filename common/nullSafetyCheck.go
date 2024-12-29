@@ -21,11 +21,11 @@ func isGormValueNullable(tags *structtag.Tags) (*bool, error) {
 		return nil, nil
 	}
 
-	gormTag.Options = append([]string{gormTag.Name}, gormTag.Options...)
-
 	if err != nil {
 		return nil, nil
 	}
+
+	gormTag.Options = append([]string{gormTag.Name}, gormTag.Options...)
 
 	nullTagExist := gormTag.HasOption("null")
 	notNullTagExist := gormTag.HasOption("not null")
@@ -47,8 +47,8 @@ func CheckFieldNullConsistency(field ast.Field, structName string, structTags st
 	tags, err := structtag.Parse(structTags)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Invalid structure tag: %s", err))
-
 	}
+
 	if tags == nil {
 		return nil
 	}
