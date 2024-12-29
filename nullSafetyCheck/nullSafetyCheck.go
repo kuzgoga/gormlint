@@ -1,4 +1,4 @@
-package nullSafetyCheck
+package analyzers
 
 import (
 	"go/ast"
@@ -8,8 +8,8 @@ import (
 )
 
 var NullSafetyAnalyzer = &analysis.Analyzer{
-	Name: "nullSafety",
-	Doc:  "reports inconsistency of nullable values",
+	Name: "gormNullSafety",
+	Doc:  "reports problems with nullable fields with unsatisfied tag",
 	Run:  run,
 }
 
@@ -24,6 +24,7 @@ func run(pass *analysis.Pass) (any, error) {
 			if !ok {
 				return true
 			}
+			pass.Fset.Position(structure.Pos())
 
 			if err := common.CheckUnnamedModel(*typeSpec); err != nil {
 				pass.Reportf(structure.Pos(), err.Error())

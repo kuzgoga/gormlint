@@ -1,10 +1,14 @@
 package main
 
 import (
-	"golang.org/x/tools/go/analysis/singlechecker"
+	"golang.org/x/tools/go/analysis/multichecker"
 	"gormlint/nullSafetyCheck"
+	"gormlint/referencesCheck"
 )
 
 func main() {
-	singlechecker.Main(nullSafetyCheck.NullSafetyAnalyzer)
+	multichecker.Main(
+		nullSafetyCheck.NullSafetyAnalyzer,
+		referencesCheck.ReferenceAnalyzer,
+	)
 }
