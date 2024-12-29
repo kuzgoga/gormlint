@@ -22,6 +22,7 @@ func init() {
 }
 
 func run(pass *analysis.Pass) (any, error) {
+	// TODO: move in new function
 	for _, file := range pass.Files {
 		ast.Inspect(file, func(node ast.Node) bool {
 			typeSpec, ok := node.(*ast.TypeSpec)
