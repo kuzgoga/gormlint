@@ -1,18 +1,21 @@
 package common
 
 import (
+	"errors"
+	"fmt"
 	"go/ast"
-	"golang.org/x/tools/go/analysis"
 )
 
-func CheckUnnamedModel(pass analysis.Pass, typeSpec ast.TypeSpec) {
+func CheckUnnamedModel(typeSpec ast.TypeSpec) error {
 	if typeSpec.Name == nil {
-		pass.Reportf(typeSpec.Pos(), "Unnamed model\n")
+		return errors.New(fmt.Sprintf("Unnamed model\n"))
 	}
+	return nil
 }
 
-func CheckUnnamedField(pass analysis.Pass, structName string, field ast.Field) {
+func CheckUnnamedField(structName string, field ast.Field) error {
 	if len(field.Names) == 0 {
-		pass.Reportf(field.Pos(), "Struct \"%s\" has unnamed field", structName)
+		return errors.New(fmt.Sprintf("Struct \"%s\" has unnamed field", structName))
 	}
+	return nil
 }

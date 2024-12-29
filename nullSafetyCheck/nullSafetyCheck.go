@@ -25,17 +25,26 @@ func run(pass *analysis.Pass) (any, error) {
 				return true
 			}
 
-			common.CheckUnnamedModel(*pass, *typeSpec)
+			if err := common.CheckUnnamedModel(*typeSpec); err != nil {
+				pass.Reportf(structure.Pos(), err.Error())
+				return false
+			}
 
 			for _, field := range structure.Fields.List {
-				common.CheckUnnamedField(*pass, typeSpec.Name.Name, *field)
+				if err := common.CheckUnnamedField(typeSpec.Name.Name, *field); err != nil {
+					pass.Reportf(field.Pos(), err.Error())
+					return false
+				}
 				if field.Tag != nil {
 					tagWithoutQuotes := field.Tag.Value[1 : len(field.Tag.Value)-1]
 					tagWithoutSemicolons := strings.ReplaceAll(tagWithoutQuotes, ";", ",")
-					common.CheckFieldNullConsistency(*pass, *field, typeSpec.Name.Name, tagWithoutSemicolons)
-				} else {
-					// TODO: check necessary tags for some fields
+					err := common.CheckFieldNullConsistency(*field, typeSpec.Name.Name, tagWithoutSemicolons)
+					if err != nil {
+						pass.Reportf(field.Pos(), err.Error())
+						return false
+					}
 				}
+				// TODO: check necessary tags for some fields
 			}
 			return false
 		})

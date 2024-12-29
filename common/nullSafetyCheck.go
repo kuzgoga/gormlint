@@ -2,9 +2,9 @@ package common
 
 import (
 	"errors"
+	"fmt"
 	"github.com/fatih/structtag"
 	"go/ast"
-	"golang.org/x/tools/go/analysis"
 )
 
 func isPointerType(typeExpr ast.Expr) bool {
@@ -30,7 +30,7 @@ func isGormValueNullable(tags *structtag.Tags) (*bool, error) {
 	nullTagExist := gormTag.HasOption("null")
 	notNullTagExist := gormTag.HasOption("not null")
 
-	if nullTagExist == notNullTagExist && nullTagExist == true {
+	if nullTagExist == notNullTagExist && nullTagExist {
 		return nil, errors.New(`tags "null" and "not null" are specified at one field`)
 	}
 
@@ -43,26 +43,28 @@ func isGormValueNullable(tags *structtag.Tags) (*bool, error) {
 	}
 }
 
-func CheckFieldNullConsistency(pass analysis.Pass, field ast.Field, structName string, structTags string) {
+func CheckFieldNullConsistency(field ast.Field, structName string, structTags string) error {
 	tags, err := structtag.Parse(structTags)
 	if err != nil {
-		pass.Reportf(field.Pos(), "Invalid structure tag: %s", err)
+		return errors.New(fmt.Sprintf("Invalid structure tag: %s", err))
+
 	}
 	if tags == nil {
-		return
+		return nil
 	}
 
 	isFieldNullable := isPointerType(field.Type)
 	isColumnNullable, err := isGormValueNullable(tags)
 
 	if err != nil {
-		pass.Reportf(field.Pos(), "Null safety error: %s", err)
+		return errors.New(fmt.Sprintf("Null safety error: %s", err))
 	}
 	if isColumnNullable == nil {
-		return
+		return nil
 	}
 
 	if isFieldNullable != *isColumnNullable {
-		pass.Reportf(field.Pos(), "Null safety error in \"%s\" model, field \"%s\": column nullable policy doesn't match to tag nullable policy", structName, field.Names[0].Name)
+		return errors.New(fmt.Sprintf("Null safety error in \"%s\" model, field \"%s\": column nullable policy doesn't match to tag nullable policy", structName, field.Names[0].Name))
 	}
+	return nil
 }

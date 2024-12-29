@@ -7,7 +7,7 @@ type Order struct {
 	ProductType   ProductType
 	ProductAmount uint
 	Description   string
-	CustomerId    uint `gorm:"null;foreignKey:CustomerId;"`
+	CustomerId    uint `gorm:"null;foreignKey:CustomerId;"` // want "Null safety error in \"Order\" model, field \"CustomerId\": column nullable policy doesn't match to tag nullable policy"
 	Customer      Customer
 	CreatedAt     int64 `gorm:"autoCreateTime"`
 	DeadlineDate  int64
