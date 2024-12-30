@@ -9,7 +9,7 @@ import (
 
 // NullSafetyAnalyzer todo: add URL for null safety analyzer rules
 var NullSafetyAnalyzer = &analysis.Analyzer{
-	Name: "gormNullSafety",
+	Name: "GormNullSafety",
 	Doc:  "reports problems with nullable fields with unsatisfied tag",
 	Run:  run,
 }

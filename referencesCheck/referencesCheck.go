@@ -9,7 +9,7 @@ import (
 
 // ReferenceAnalyzer todo: add URL for rule
 var ReferenceAnalyzer = &analysis.Analyzer{
-	Name: "gormReferencesCheck",
+	Name: "GormReferencesCheck",
 	Doc:  "report about invalid references in models",
 	Run:  run,
 }
