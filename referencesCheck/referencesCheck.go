@@ -1,8 +1,7 @@
 package referencesCheck
 
 import (
-	"github.com/fatih/structtag"
-	"go/ast"
+	"fmt"
 	"golang.org/x/tools/go/analysis"
 	"gormlint/common"
 	"strings"
@@ -17,77 +16,44 @@ var ReferenceAnalyzer = &analysis.Analyzer{
 
 var models map[string]common.Model
 
-func init() {
-	models = make(map[string]common.Model)
-}
-
 func run(pass *analysis.Pass) (any, error) {
-	// TODO: move in new function
-	for _, file := range pass.Files {
-		ast.Inspect(file, func(node ast.Node) bool {
-			typeSpec, ok := node.(*ast.TypeSpec)
-			if !ok {
-				return true
-			}
-			structure, ok := typeSpec.Type.(*ast.StructType)
-			if !ok {
-				return true
-			}
+	models = make(map[string]common.Model)
+	common.ParseModels(pass, &models)
 
-			if err := common.CheckUnnamedModel(*typeSpec); err != nil {
-				pass.Reportf(structure.Pos(), err.Error())
-				return false
-			}
-
-			var model common.Model
-			model.Name = typeSpec.Name.Name
-			model.Comment = typeSpec.Comment.Text()
-			model.Position = structure.Pos()
-			model.Fields = make(map[string]common.Field)
-
-			for _, field := range structure.Fields.List {
-				var structField common.Field
-				if err := common.CheckUnnamedField(typeSpec.Name.Name, *field); err != nil {
-					pass.Reportf(field.Pos(), err.Error())
-					return false
+	for _, model := range models {
+		for _, field := range model.Fields {
+			for _, param := range field.Params {
+				pair := strings.Split(param, ":")
+				if len(pair) < 2 {
+					fmt.Printf("%s", param)
 				}
-				structField.Name = field.Names[0].Name
-				structField.Position = field.Pos()
-				structField.Comment = field.Comment.Text()
-				structField.Type = field.Type
-				if field.Tag != nil {
-					structField.Tags = &field.Tag.Value
+				paramName := pair[0]
+				paramValue := pair[1]
 
-					tags, err := structtag.Parse(common.NormalizeStructTags(field.Tag.Value))
-					if err != nil {
-						pass.Reportf(field.Pos(), "Invalid structure tag: %s\n", err)
-						return false
-					}
-					if tags != nil {
-						gormTag, parseErr := tags.Get("gorm")
-						if gormTag != nil && parseErr == nil {
-							gormTag.Options = append([]string{gormTag.Name}, gormTag.Options...)
-							for _, opt := range gormTag.Options {
-								if strings.Contains(opt, ":") {
-									structField.Params = append(structField.Options, opt)
-								} else {
-									structField.Options = append(structField.Options, opt)
-								}
-							}
-						}
-						if parseErr != nil {
-							pass.Reportf(field.Pos(), "Invalid structure tag: %s\n", parseErr)
-							return false
-						}
+				if paramName == "reference" {
+					pass.Reportf(field.Pos, "Typo in tag: \"reference\" instead of verb \"references\"")
+				}
+				if paramName == "references" {
+					fieldType := common.ResolveBaseType(field.Type)
+
+					if fieldType == nil {
+						pass.Reportf(field.Pos, "Failed to process references check. Cannot resolve type \"%s\" in field \"%s\"", field.Type, field.Name)
+						return nil, nil
 					}
 
-					model.Fields[structField.Name] = structField
-				}
+					relatedModel, modelExists := models[*fieldType]
 
-				models[model.Name] = model
+					if modelExists {
+						_, fieldExists := relatedModel.Fields[paramValue]
+						if !fieldExists {
+							pass.Reportf(field.Pos, "Related field \"%s\" doesn't exist on model \"%s\"", paramValue, relatedModel.Name)
+						}
+					} else {
+						pass.Reportf(field.Pos, "Related model \"%s\" doesn't exist", *fieldType)
+					}
+				}
 			}
-			return false
-		})
+		}
 	}
 	return nil, nil
 }
