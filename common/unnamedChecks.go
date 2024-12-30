@@ -12,10 +12,3 @@ func CheckUnnamedModel(typeSpec ast.TypeSpec) error {
 	}
 	return nil
 }
-
-func CheckUnnamedField(structName string, field ast.Field) error {
-	if len(field.Names) == 0 {
-		return errors.New(fmt.Sprintf("Struct \"%s\" has unnamed field", structName))
-	}
-	return nil
-}

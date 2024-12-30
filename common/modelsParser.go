@@ -32,12 +32,18 @@ func ParseModels(pass *analysis.Pass, models *map[string]Model) {
 
 			for _, field := range structure.Fields.List {
 				var structField Field
-				if err := CheckUnnamedField(typeSpec.Name.Name, *field); err != nil {
-					pass.Reportf(field.Pos(), err.Error())
-					return false
+
+				if len(field.Names) == 0 {
+					fieldType := ResolveBaseType(field.Type)
+					if fieldType == nil {
+						pass.Reportf(field.Pos(), "Failed to resolve model \"%s\" field type: %s", model.Name, field.Type)
+					} else {
+						structField.Name = *fieldType
+					}
+				} else {
+					structField.Name = field.Names[0].Name
 				}
 
-				structField.Name = field.Names[0].Name
 				structField.Pos = field.Pos()
 				structField.Comment = field.Comment.Text()
 				structField.Type = field.Type

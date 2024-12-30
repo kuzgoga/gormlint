@@ -13,10 +13,8 @@ var ReferenceAnalyzer = &analysis.Analyzer{
 	Run:  run,
 }
 
-var models map[string]common.Model
-
 func run(pass *analysis.Pass) (any, error) {
-	models = make(map[string]common.Model)
+	models := make(map[string]common.Model)
 	common.ParseModels(pass, &models)
 
 	for _, model := range models {

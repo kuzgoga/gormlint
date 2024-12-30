@@ -32,20 +32,26 @@ func run(pass *analysis.Pass) (any, error) {
 			}
 
 			for _, field := range structure.Fields.List {
-				if err := common.CheckUnnamedField(typeSpec.Name.Name, *field); err != nil {
-					pass.Reportf(field.Pos(), err.Error())
-					return false
+				var structFieldName string
+				if len(field.Names) == 0 {
+					fieldType := common.ResolveBaseType(field.Type)
+					if fieldType == nil {
+						pass.Reportf(field.Pos(), "Failed to resolve model \"%s\" field type: %s", typeSpec.Name.Name, field.Type)
+					} else {
+						structFieldName = *fieldType
+					}
+				} else {
+					structFieldName = field.Names[0].Name
 				}
 				if field.Tag != nil {
 					tagWithoutQuotes := field.Tag.Value[1 : len(field.Tag.Value)-1]
 					tagWithoutSemicolons := strings.ReplaceAll(tagWithoutQuotes, ";", ",")
-					err := common.CheckFieldNullConsistency(*field, typeSpec.Name.Name, tagWithoutSemicolons)
+					err := common.CheckFieldNullConsistency(*field, structFieldName, typeSpec.Name.Name, tagWithoutSemicolons)
 					if err != nil {
 						pass.Reportf(field.Pos(), err.Error())
 						return false
 					}
 				}
-				// TODO: check necessary tags for some fields
 			}
 			return false
 		})

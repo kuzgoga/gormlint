@@ -43,7 +43,7 @@ func isGormValueNullable(tags *structtag.Tags) (*bool, error) {
 	}
 }
 
-func CheckFieldNullConsistency(field ast.Field, structName string, structTags string) error {
+func CheckFieldNullConsistency(field ast.Field, fieldName string, structName string, structTags string) error {
 	tags, err := structtag.Parse(structTags)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Invalid structure tag: %s", err))
@@ -64,7 +64,7 @@ func CheckFieldNullConsistency(field ast.Field, structName string, structTags st
 	}
 
 	if isFieldNullable != *isColumnNullable {
-		return errors.New(fmt.Sprintf("Null safety error in \"%s\" model, field \"%s\": column nullable policy doesn't match to tag nullable policy", structName, field.Names[0].Name))
+		return errors.New(fmt.Sprintf("Null safety error in \"%s\" model, field \"%s\": column nullable policy doesn't match to tag nullable policy", structName, fieldName))
 	}
 	return nil
 }
