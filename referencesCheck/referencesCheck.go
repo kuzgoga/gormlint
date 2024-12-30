@@ -1,7 +1,6 @@
 package referencesCheck
 
 import (
-	"fmt"
 	"golang.org/x/tools/go/analysis"
 	"gormlint/common"
 	"strings"
@@ -24,9 +23,6 @@ func run(pass *analysis.Pass) (any, error) {
 		for _, field := range model.Fields {
 			for _, param := range field.Params {
 				pair := strings.Split(param, ":")
-				if len(pair) < 2 {
-					fmt.Printf("%s", param)
-				}
 				paramName := pair[0]
 				paramValue := pair[1]
 
