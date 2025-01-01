@@ -1,5 +1,7 @@
 package references_check
 
+// TODO: add test with annotations on back-references
+
 type User struct {
 	Name      string
 	CompanyID string

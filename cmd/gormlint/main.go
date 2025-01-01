@@ -5,6 +5,7 @@ import (
 	"gormlint/foreignKeyCheck"
 	"gormlint/nullSafetyCheck"
 	"gormlint/referencesCheck"
+	"gormlint/relationsCheck"
 )
 
 func main() {
@@ -12,5 +13,6 @@ func main() {
 		nullSafetyCheck.NullSafetyAnalyzer,
 		referencesCheck.ReferenceAnalyzer,
 		foreignKeyCheck.ForeignKeyCheck,
+		relationsCheck.RelationsAnalyzer,
 	)
 }

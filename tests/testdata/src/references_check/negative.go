@@ -1,5 +1,7 @@
 package references_check
 
+// TODO: add test with annotations on back-references
+
 type WorkArea struct {
 	Id         uint     `gorm:"primaryKey"`
 	Workshop   Workshop `gorm:"foreignKey:WorkshopId;references:Id;"`
