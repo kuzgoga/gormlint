@@ -9,8 +9,8 @@ import (
 
 // RelationsAnalyzer todo: add URL for rule
 var RelationsAnalyzer = &analysis.Analyzer{
-	Name: "GormReferencesCheck",
-	Doc:  "report about invalid references in models",
+	Name: "GormRelationsCheck",
+	Doc:  "report about invalid relations in models",
 	Run:  run,
 }
 
@@ -50,7 +50,7 @@ func CheckMany2Many(pass *analysis.Pass, models map[string]common.Model) {
 	var knownModels []string
 	for _, model := range models {
 		for _, field := range model.Fields {
-			m2mRelation := field.GetParam("many2many")
+			m2mRelation := field.Tags.GetParam("many2many")
 			if m2mRelation != nil {
 				relatedModel := common.GetModelFromType(field.Type, models)
 				if relatedModel == nil {
@@ -70,6 +70,15 @@ func CheckMany2Many(pass *analysis.Pass, models map[string]common.Model) {
 					// TODO: check foreign key and references
 					fmt.Printf("Found M2M relation between \"%s\" and \"%s\"\n", model.Name, relatedModel.Name)
 				} else {
+					// Check self-reference
+					if model.Name == relatedModel.Name {
+						CheckTypesOfM2M(pass, model.Name, relatedModel.Name, m2mRelation.Value, field, field)
+					} else {
+						if !relatedModel.HasPrimaryKey() {
+							fmt.Printf("%#v\n", relatedModel)
+							pass.Reportf(field.Pos, "Can't build M2M relation `%s`, primary key on `%s` model is absont", m2mRelation.Value, relatedModel.Name)
+						}
+					}
 					// Here you can forbid M2M relations without back-reference
 					// TODO: process m2m without backref
 				}

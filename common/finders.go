@@ -1,6 +1,7 @@
 package common
 
 import (
+	"github.com/kuzgoga/fogg"
 	"go/ast"
 	"strings"
 )
@@ -32,32 +33,10 @@ func GetRelatedModel(modelName string, models map[string]Model) *Model {
 	}
 }
 
-func FindParamValue(paramName string, params []string) *string {
-	for _, rawParam := range params {
-		pair := strings.Split(rawParam, ":")
-		if len(pair) < 2 {
-			return nil
-		}
-		if strings.ToLower(pair[0]) == strings.ToLower(paramName) {
-			return &pair[1]
-		}
-	}
-	return nil
-}
-
-func FindModelParam(paramName string, model Model) *Param {
+func FindModelParam(paramName string, model Model) *fogg.TagParam {
 	for _, field := range model.Fields {
-		for _, param := range field.Params {
-			pair := strings.Split(param, ":")
-			if len(pair) < 2 {
-				return nil
-			}
-			if strings.ToLower(pair[0]) == strings.ToLower(paramName) {
-				return &Param{
-					Name:  pair[0],
-					Value: pair[1],
-				}
-			}
+		if field.Tags.HasParam(paramName) {
+			return field.Tags.GetParam(paramName)
 		}
 	}
 	return nil
@@ -65,15 +44,13 @@ func FindModelParam(paramName string, model Model) *Param {
 
 func FindReferencesInM2M(m2mReference Field, relatedModel Model) *Field {
 	/* Find `references` field in m2m relation */
-	referencesTagValue := FindParamValue("references", m2mReference.Params)
-	if referencesTagValue != nil {
-		return GetModelField(&relatedModel, *referencesTagValue)
+	referencesTag := m2mReference.Tags.GetParam("references")
+	if referencesTag != nil {
+		return GetModelField(&relatedModel, referencesTag.Value)
 	} else {
 		for _, field := range relatedModel.Fields {
-			for _, opt := range field.Options {
-				if opt == "primaryKey" {
-					return &field
-				}
+			if field.Tags.HasOption("primaryKey") {
+				return &field
 			}
 		}
 		for _, field := range relatedModel.Fields {
@@ -87,7 +64,7 @@ func FindReferencesInM2M(m2mReference Field, relatedModel Model) *Field {
 
 func FindBackReferenceInM2M(relationName string, relatedModel Model) *Field {
 	for _, field := range relatedModel.Fields {
-		m2mRelation := field.GetParam("many2many")
+		m2mRelation := field.Tags.GetParam("many2many")
 		if m2mRelation != nil {
 			if m2mRelation.Value == relationName {
 				return &field

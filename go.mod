@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/kuzgoga/fogg v0.1.2 // indirect
 	golang.org/x/mod v0.22.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 )

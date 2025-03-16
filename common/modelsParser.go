@@ -1,10 +1,9 @@
 package common
 
 import (
-	"github.com/fatih/structtag"
+	"github.com/kuzgoga/fogg"
 	"go/ast"
 	"golang.org/x/tools/go/analysis"
-	"strings"
 )
 
 func ParseModels(pass *analysis.Pass, models *map[string]Model) {
@@ -49,29 +48,17 @@ func ParseModels(pass *analysis.Pass, models *map[string]Model) {
 				structField.Type = field.Type
 
 				if field.Tag != nil {
-					structField.Tags = &field.Tag.Value
-
-					tags, err := structtag.Parse(NormalizeStructTags(field.Tag.Value))
+					structField.Tag = &field.Tag.Value
+					var structTag string
+					structTag = field.Tag.Value[1 : len(field.Tag.Value)-1]
+					tags, err := fogg.Parse(structTag)
 					if err != nil {
-						pass.Reportf(field.Pos(), "Invalid structure tag: %s\n", err)
+						pass.Reportf(field.Pos(), "Invalid struct tag: %s\n", err)
 						return false
 					}
-					if tags != nil {
-						gormTag, parseErr := tags.Get("gorm")
-						if gormTag != nil && parseErr == nil {
-							gormTag.Options = append([]string{gormTag.Name}, gormTag.Options...)
-							for _, opt := range gormTag.Options {
-								if strings.Contains(opt, ":") {
-									structField.Params = append(structField.Params, opt)
-								} else {
-									structField.Options = append(structField.Options, opt)
-								}
-							}
-						}
-						if parseErr != nil {
-							pass.Reportf(field.Pos(), "Invalid structure tag: %s\n", parseErr)
-							return false
-						}
+					gormTag := tags.GetTag("gorm")
+					if gormTag != nil {
+						structField.Tags = *gormTag
 					}
 				}
 				model.Fields[structField.Name] = structField
