@@ -122,7 +122,7 @@ func CheckOneToMany(pass *analysis.Pass, models map[string]common.Model) {
 
 			if !foundOneToMany {
 				if foundBelongsTo {
-					fmt.Printf("Found belongs to relation in model `%s` with model `%s`\n", model.Name, *baseType)
+					fmt.Printf("`%s` belongs `%s`\n", *baseType, model.Name)
 				} else if hasOne {
 					fmt.Printf("`%s` has one `%s` \n", model.Name, relatedModel.Name)
 				} else {

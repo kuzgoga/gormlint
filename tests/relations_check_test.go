@@ -7,6 +7,5 @@ import (
 )
 
 func TestRelationsCheck(t *testing.T) {
-	t.Parallel()
 	analysistest.Run(t, analysistest.TestData(), relationsCheck.RelationsAnalyzer, "relations_check")
 }
