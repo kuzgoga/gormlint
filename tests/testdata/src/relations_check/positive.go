@@ -45,7 +45,7 @@ type Owner struct {
 	Id        uint `gorm:"primaryKey"`
 	Name      string
 	CompanyId int
-	Company   Company
+	Company   Company `gorm:"constraint:OnDelete:CASCADE;"`
 }
 
 type Company struct {

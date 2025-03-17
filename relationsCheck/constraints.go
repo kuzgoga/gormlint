@@ -8,7 +8,7 @@ import (
 
 func CheckCascadeDelete(pass *analysis.Pass, field common.Field) bool {
 	if !field.Tags.HasParam("constraint") {
-		pass.Reportf(field.Pos, "field %s should have a constraint", field.Name)
+		pass.Reportf(field.Pos, "field %s should have a delete constraint", field.Name)
 		return true
 	}
 	constraintValue := field.Tags.GetParam("constraint").Value

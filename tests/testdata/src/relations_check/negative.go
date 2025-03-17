@@ -65,8 +65,8 @@ type ShoppingCart struct {
 // Has one
 
 type Hotel struct {
-	Id uint `gorm:"primaryKey"`
-	Office
+	Id     uint `gorm:"primaryKey"`
+	Office      // want "field Office should have a delete constraint"
 }
 
 type Office struct {

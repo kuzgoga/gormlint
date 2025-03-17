@@ -123,8 +123,14 @@ func CheckOneToMany(pass *analysis.Pass, models map[string]common.Model) {
 			if !foundOneToMany {
 				if foundBelongsTo {
 					fmt.Printf("`%s` belongs `%s`\n", *baseType, model.Name)
+					if CheckCascadeDelete(pass, field) {
+						return
+					}
 				} else if hasOne {
 					fmt.Printf("`%s` has one `%s` \n", model.Name, relatedModel.Name)
+					if CheckCascadeDelete(pass, field) {
+						return
+					}
 				} else {
 					pass.Reportf(field.Pos, "Invalid relation in field `%s`", field.Name)
 				}
