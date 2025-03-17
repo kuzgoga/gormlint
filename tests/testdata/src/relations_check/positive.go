@@ -26,8 +26,8 @@ type Kuzbass struct {
 }
 
 type City struct {
-	Id      uint `gorm:"primaryKey"`
-	Kuzbass Kuzbass
+	Id      uint    `gorm:"primaryKey"`
+	Kuzbass Kuzbass // want "Invalid relation in field `Kuzbass`"
 }
 
 type Federation struct { // want "Id field should be presented model \"Federation\""
@@ -37,4 +37,18 @@ type Federation struct { // want "Id field should be presented model \"Federatio
 type Land struct {
 	Id           uint `gorm:"primaryKey"`
 	FederationId uint
+}
+
+// Belongs to
+
+type Owner struct {
+	Id        uint `gorm:"primaryKey"`
+	Name      string
+	CompanyId int
+	Company   Company
+}
+
+type Company struct {
+	Id   int
+	Name string
 }

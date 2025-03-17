@@ -50,3 +50,14 @@ type File struct {
 	PostId uint
 	Post   Post
 }
+
+type Consumer struct {
+	Id           uint `gorm:"primaryKey"`
+	Name         string
+	ShoppingCart ShoppingCart // want "Invalid relation in field `ShoppingCart`"
+}
+
+type ShoppingCart struct {
+	Id              uint `gorm:"primaryKey"`
+	SerializedItems string
+}

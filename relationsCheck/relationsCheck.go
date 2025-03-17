@@ -98,6 +98,9 @@ func CheckOneToMany(pass *analysis.Pass, models map[string]common.Model) {
 			if common.IsSlice(field.Type) {
 				continue
 			}
+			if field.Tags.HasParam("many2many") {
+				continue
+			}
 
 			baseType := common.ResolveBaseType(field.Type)
 			if baseType == nil {
@@ -118,6 +121,8 @@ func CheckOneToMany(pass *analysis.Pass, models map[string]common.Model) {
 				foundBelongsTo := IsBelongsTo(field, model, *relatedModel)
 				if foundBelongsTo {
 					fmt.Printf("Found belongs to relation in model `%s` with model `%s`\n", model.Name, *baseType)
+				} else {
+					pass.Reportf(field.Pos, "Invalid relation in field `%s`", field.Name)
 				}
 			}
 		}
