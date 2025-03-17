@@ -8,3 +8,12 @@ func (model *Model) HasPrimaryKey() bool {
 	}
 	return false
 }
+
+func (model *Model) HasField(name string) bool {
+	for _, field := range model.Fields {
+		if field.Name == name {
+			return true
+		}
+	}
+	return false
+}
