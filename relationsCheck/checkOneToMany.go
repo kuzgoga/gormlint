@@ -2,9 +2,9 @@ package relationsCheck
 
 import (
 	"fmt"
+	"github.com/kuzgoga/gormlint/common"
 	"go/types"
 	"golang.org/x/tools/go/analysis"
-	"gormlint/common"
 )
 
 func findBackReferenceInOneToMany(model common.Model, relatedModel common.Model) *common.Field {

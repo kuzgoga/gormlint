@@ -1,9 +1,9 @@
 package nullSafetyCheck
 
 import (
+	"github.com/kuzgoga/gormlint/common"
 	"go/ast"
 	"golang.org/x/tools/go/analysis"
-	"gormlint/common"
 	"strings"
 )
 

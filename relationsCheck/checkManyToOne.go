@@ -1,10 +1,10 @@
 package relationsCheck
 
 import (
+	"github.com/kuzgoga/gormlint/common"
 	"go/token"
 	"go/types"
 	"golang.org/x/tools/go/analysis"
-	"gormlint/common"
 	"strings"
 )
 

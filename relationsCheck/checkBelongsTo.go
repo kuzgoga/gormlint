@@ -1,7 +1,7 @@
 package relationsCheck
 
 import (
-	"gormlint/common"
+	"github.com/kuzgoga/gormlint/common"
 )
 
 func IsBelongsTo(field common.Field, model common.Model, relatedModel common.Model) bool {

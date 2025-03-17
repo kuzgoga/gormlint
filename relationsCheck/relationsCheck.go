@@ -2,8 +2,8 @@ package relationsCheck
 
 import (
 	"fmt"
+	"github.com/kuzgoga/gormlint/common"
 	"golang.org/x/tools/go/analysis"
-	"gormlint/common"
 	"slices"
 )
 

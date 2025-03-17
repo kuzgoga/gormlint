@@ -1,8 +1,8 @@
 package relationsCheck
 
 import (
+	"github.com/kuzgoga/gormlint/common"
 	"golang.org/x/tools/go/analysis"
-	"gormlint/common"
 	"strings"
 )
 

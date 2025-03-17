@@ -1,8 +1,8 @@
 package tests
 
 import (
+	"github.com/kuzgoga/gormlint/nullSafetyCheck"
 	"golang.org/x/tools/go/analysis/analysistest"
-	"gormlint/nullSafetyCheck"
 	"testing"
 )
 

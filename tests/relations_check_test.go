@@ -1,8 +1,8 @@
 package tests
 
 import (
+	"github.com/kuzgoga/gormlint/relationsCheck"
 	"golang.org/x/tools/go/analysis/analysistest"
-	"gormlint/relationsCheck"
 	"testing"
 )
 
