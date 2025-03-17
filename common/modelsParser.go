@@ -64,6 +64,11 @@ func ParseModels(pass *analysis.Pass, models *map[string]Model) {
 				model.Fields[structField.Name] = structField
 				(*models)[model.Name] = model
 			}
+
+			if _, exist := model.Fields["Id"]; !exist {
+				pass.Reportf(model.Pos, "Id field should be presented model \"%s\"", model.Name)
+			}
+
 			return false
 		})
 	}

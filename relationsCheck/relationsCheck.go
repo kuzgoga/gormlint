@@ -48,12 +48,17 @@ func CheckTypesOfM2M(pass *analysis.Pass, modelName string, relatedModelName str
 }
 
 func CheckMany2Many(pass *analysis.Pass, models map[string]common.Model) {
-	// TODO: unexpected duplicated relations
-	var knownModels []string
+	var processedRelations []string
+
 	for _, model := range models {
 		for _, field := range model.Fields {
 			m2mRelation := field.Tags.GetParam("many2many")
 			if m2mRelation != nil {
+				if slices.Contains(processedRelations, m2mRelation.Value) {
+					continue
+				}
+				processedRelations = append(processedRelations, m2mRelation.Value)
+
 				relatedModel := common.GetModelFromType(field.Type, models)
 				if relatedModel == nil {
 					pass.Reportf(field.Pos, "Failed to resolve related model type")
@@ -62,46 +67,21 @@ func CheckMany2Many(pass *analysis.Pass, models map[string]common.Model) {
 
 				backReference := common.FindBackReferenceInM2M(m2mRelation.Value, *relatedModel)
 				if backReference != nil {
-					if slices.Contains(knownModels, relatedModel.Name) {
-						continue
-					} else {
-						knownModels = append(knownModels, model.Name)
-						knownModels = append(knownModels, relatedModel.Name)
-					}
 					if CheckTypesOfM2M(pass, model.Name, relatedModel.Name, m2mRelation.Value, field, *backReference) {
 						continue
 					}
-					// TODO: check foreign key and references
-					fmt.Printf("Found M2M relation between \"%s\" and \"%s\"\n", model.Name, relatedModel.Name)
+					// Проверка каскадного удаления и других параметров
 					if CheckCascadeDelete(pass, field) {
 						continue
 					}
 				} else {
-					// Check self-reference
+					// Обработка самоссылки
 					if model.Name == relatedModel.Name {
-						CheckTypesOfM2M(pass, model.Name, relatedModel.Name, m2mRelation.Value, field, field)
-					} else {
-						if !relatedModel.HasPrimaryKey() {
-							fmt.Printf("%#v\n", relatedModel)
-							pass.Reportf(field.Pos, "Can't build M2M relation `%s`, primary key on `%s` model is absont", m2mRelation.Value, relatedModel.Name)
+						if CheckTypesOfM2M(pass, model.Name, relatedModel.Name, m2mRelation.Value, field, field) {
 							continue
 						}
-					}
-					// Here you can forbid M2M relations without back-reference
-					// TODO: process m2m without backref
-					if CheckCascadeDelete(pass, field) {
-						continue
-					}
-				}
-			} else {
-				if common.IsSlice(field.Type) {
-					relatedModel := common.GetModelFromType(field.Type, models)
-					if relatedModel == nil {
-						pass.Reportf(field.Pos, "Failed to resolve related model type")
-						continue
-					}
-					if checkManyToOne(pass, field, model, *relatedModel) {
-						continue
+					} else {
+						pass.Reportf(field.Pos, "M2M relation `%s` missing back-reference in model `%s`", m2mRelation.Value, relatedModel.Name)
 					}
 					if CheckCascadeDelete(pass, field) {
 						continue
@@ -112,10 +92,42 @@ func CheckMany2Many(pass *analysis.Pass, models map[string]common.Model) {
 	}
 }
 
+func CheckOneToMany(pass *analysis.Pass, models map[string]common.Model) {
+	for _, model := range models {
+		for _, field := range model.Fields {
+			if common.IsSlice(field.Type) {
+				continue
+			}
+
+			baseType := common.ResolveBaseType(field.Type)
+			if baseType == nil {
+				pass.Reportf(field.Pos, "Failed to resolve field base type: `%s`", field.Type)
+				continue
+			}
+			relatedModel := common.GetModelFromType(field.Type, models)
+			if relatedModel == nil {
+				continue
+			}
+
+			foundOneToMany := isOneToMany(pass, model, *relatedModel)
+			if foundOneToMany {
+				fmt.Printf("Found 1:M relation in model `%s` with model `%s`\n", model.Name, *baseType)
+			}
+
+			if !foundOneToMany {
+				foundBelongsTo := IsBelongsTo(field, model, *relatedModel)
+				if foundBelongsTo {
+					fmt.Printf("Found belongs to relation in model `%s` with model `%s`\n", model.Name, *baseType)
+				}
+			}
+		}
+	}
+}
+
 func run(pass *analysis.Pass) (any, error) {
 	models := make(map[string]common.Model)
 	common.ParseModels(pass, &models)
 	CheckMany2Many(pass, models)
-
+	CheckOneToMany(pass, models)
 	return nil, nil
 }

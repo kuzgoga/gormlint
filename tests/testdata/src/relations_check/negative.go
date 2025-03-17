@@ -28,6 +28,7 @@ type Writer struct {
 }
 
 // One-to-many
+
 type Comment struct {
 	Id            uint `gorm:"primaryKey"`
 	CommentatorId uint

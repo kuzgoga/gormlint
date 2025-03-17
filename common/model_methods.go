@@ -17,3 +17,12 @@ func (model *Model) HasField(name string) bool {
 	}
 	return false
 }
+
+func (model *Model) PrimaryKey() bool {
+	for _, field := range model.Fields {
+		if field.Tags.HasOption("primaryKey") {
+			return true
+		}
+	}
+	return false
+}
