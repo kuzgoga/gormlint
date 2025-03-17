@@ -31,7 +31,7 @@ type City struct {
 }
 
 type Federation struct {
-	Lands []Land `gorm:"constraint:OnDelete:CASCADE;"` // want ""
+	Lands []Land `gorm:"constraint:OnDelete:CASCADE;"` // want "Expected references `Id` in model `Federation` for 1:M relation with model `Land`"
 }
 
 type Land struct {
