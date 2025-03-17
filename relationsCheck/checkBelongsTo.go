@@ -5,13 +5,13 @@ import (
 )
 
 func IsBelongsTo(field common.Field, model common.Model, relatedModel common.Model) bool {
-	foreignKey := field.Tags.GetParamOr("foreignKey", "Id")
-	references := field.Tags.GetParamOr("references", relatedModel.Name+"Id")
+	references := field.Tags.GetParamOr("references", "Id")
+	foreignKey := field.Tags.GetParamOr("foreignKey", field.Name+"Id")
 
-	if !model.HasField(references) {
+	if !model.HasField(foreignKey) {
 		return false
 	}
-	if !relatedModel.HasField(foreignKey) {
+	if !relatedModel.HasField(references) {
 		return false
 	}
 

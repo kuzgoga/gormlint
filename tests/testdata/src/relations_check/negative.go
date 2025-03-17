@@ -61,3 +61,17 @@ type ShoppingCart struct {
 	Id              uint `gorm:"primaryKey"`
 	SerializedItems string
 }
+
+// Has one
+
+type Hotel struct {
+	Id uint `gorm:"primaryKey"`
+	Office
+}
+
+type Office struct {
+	Id      uint `gorm:"primaryKey"`
+	Name    string
+	Address string
+	HotelId uint
+}
