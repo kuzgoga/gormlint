@@ -1,4 +1,4 @@
-module github.com/kuzgoga/gorint
+module github.com/kuzgoga/gormlint
 
 go 1.23.2
 
